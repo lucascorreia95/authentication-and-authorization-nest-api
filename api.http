@@ -17,6 +17,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWRtaW4iL
 GET http://localhost:3000/users/cm95qkctm0002wmg0dj568pf3
 
 ###
+# @name adminLogin
 POST http://localhost:3000/auth/login
 Content-Type: application/json
 
@@ -24,3 +25,22 @@ Content-Type: application/json
     "email": "admin@user.com",
     "password": "admin"
 }
+
+###
+
+@tokenAdmin = {{ adminLogin.response.body.access_token }}
+
+###
+POST http://localhost:3000/posts
+Content-Type: application/json
+Authorization: Bearer {{tokenAdmin}}
+
+{
+    "title": "My first post",
+    "content": "This is the content of my first post",
+    "published": true
+}
+
+###
+GET http://localhost:3000/posts
+Authorization: Bearer {{tokenAdmin}}
