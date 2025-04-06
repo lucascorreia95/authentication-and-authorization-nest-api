@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Roles, User } from '@prisma/client';
 import { Request } from 'express';
+import { CaslAbilityService } from 'src/casl/casl-ability/casl-ability.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private prismaService: PrismaService,
+    private abilityService: CaslAbilityService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -30,6 +32,7 @@ export class AuthGuard implements CanActivate {
         email: string;
         role: Roles;
         sub: string;
+        permissions: string[];
       }>(token, {
         algorithms: ['HS256'],
       });
@@ -43,6 +46,7 @@ export class AuthGuard implements CanActivate {
       }
 
       request.user = user;
+      this.abilityService.createForUser(user);
     } catch (e) {
       console.log(e);
       throw new UnauthorizedException('Invalid token', { cause: e });

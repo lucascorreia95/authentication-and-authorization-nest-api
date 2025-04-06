@@ -1,5 +1,7 @@
+## Create Admin
 POST http://localhost:3000/users
 Content-Type: application/json
+Authorization: Bearer {{tokenAdmin}}
 
 {
     "name": "Admin",
@@ -8,10 +10,45 @@ Content-Type: application/json
     "role": "ADMIN"
 }
 
+### Create Reader
+POST http://localhost:3000/users
+Content-Type: application/json
+Authorization: Bearer {{tokenReader}}
+
+{
+    "name": "Reader 6",
+    "email": "reader6@user.com",
+    "password": "reader",
+    "role": "READER"
+}
+
+### Create Writer
+POST http://localhost:3000/users
+Content-Type: application/json
+Authorization: Bearer {{tokenAdmin}}
+
+{
+    "name": "Writer 2",
+    "email": "writer2@user.com",
+    "password": "writer",
+    "role": "WRITER",
+    "permissions": [
+        {
+            "action": "read",
+            "resource": "User"
+        }
+    ]
+}
+
+### Delete User
+DELETE http://localhost:3000/users/cm9618euv0000wmbk5vp316fm
+Content-Type: application/json
+Authorization: Bearer {{tokenAdmin}}
+
 
 ###
 GET http://localhost:3000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWRtaW4iLCJlbWFpbCI6ImFkbWluQHVzZXIuY29tIiwiaWF0IjoxNzQzOTUxNzY0LCJleHAiOjE3NDM5NTg5NjR9.E3q1jjgZSq-bWGOnT3gUQoYRTvEqjFI7GTrL7VPL5Ic
+Authorization: Bearer {{tokenWriter}}
 
 ###
 GET http://localhost:3000/users/cm95qkctm0002wmg0dj568pf3
@@ -30,17 +67,61 @@ Content-Type: application/json
 
 @tokenAdmin = {{ adminLogin.response.body.access_token }}
 
+
 ###
+# @name readerLogin
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email": "reader@user.com",
+    "password": "reader"
+}
+
+###
+
+@tokenReader = {{ readerLogin.response.body.access_token }}
+
+###
+# @name writerLogin
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email": "writer@user.com",
+    "password": "writer"
+}
+
+###
+
+@tokenWriter = {{ writerLogin.response.body.access_token }}
+
+### Create Post
 POST http://localhost:3000/posts
 Content-Type: application/json
-Authorization: Bearer {{tokenAdmin}}
+Authorization: Bearer {{tokenWriter}}
 
 {
     "title": "My first post",
     "content": "This is the content of my first post",
-    "published": true
+    "published": false
 }
 
 ###
 GET http://localhost:3000/posts
 Authorization: Bearer {{tokenAdmin}}
+
+###
+GET http://localhost:3000/posts/cm960ei2d0001wmz8e0hyxd6c
+Authorization: Bearer {{tokenReader}}
+
+###
+PATCH http://localhost:3000/posts/cm95xygej0001wmpkfy13i34z
+Content-Type: application/json
+Authorization: Bearer {{tokenWriter}}
+
+{
+    "title": "Edited post",
+    "content": "This is the content of my edited post",
+    "published": false
+}
